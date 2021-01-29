@@ -66,6 +66,8 @@ def generate_lua(templatefile, outputfile, args):
     for line in lines:
         if "-- TEMPLATE --" in line:
             lines_new.append(f"-- RUN FILE --\n")
+        elif "dir = " in line:
+            lines_new.append(f'dir = "{femmdir}"\n')
         elif "gap =" in line:
             lines_new.append(f"gap = {args.gap} -- A\n")
         elif "min_i =" in line:

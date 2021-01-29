@@ -1,23 +1,23 @@
--- TEMPLATE -- ADJUST MATERIALS ETC HERE (BUT DO NOT RUN THIS FILE)
+-- RUN FILE --
 -- Author: Cole Kampa
 -- 01-29-2021
 -- Instructions: start FEMM, then load script: File->Open Lua Script
 
 -- Some globals to change by hand
 -- Magnet gap
-gap = 75 -- mm
+gap = 70 -- A
 
 -- tempfile
 tempfile = "temp_"..tostring(gap).."mm.fem"
 
 -- set current range and increment and calculate step size
-increment = 20 -- 10 -- 50 -- 20 -- 0.1
-min_i = 0
-max_i = 200 -- 140
+increment = 0.1 -- A
+min_i = 0.0 -- A
+max_i = 200.0 -- A
 steps = floor((max_i - min_i) / increment) + 1
 
 -- file names
-dir = "/home/ckampa/Coding/CalibMagnetCalc/FEMM/"
+dir = "/home/ckampa/coding/CalibMagnetCalc/FEMM/"
 outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
 geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
