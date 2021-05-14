@@ -1,31 +1,30 @@
--- RUN FILE --
+-- TEMPLATE -- ADJUST MATERIALS ETC HERE (BUT DO NOT RUN THIS FILE)
 -- Author: Cole Kampa
 -- 01-29-2021
 -- Instructions: start FEMM, then load script: File->Open Lua Script
 
 -- Some globals to change by hand
 -- Magnet gap
-gap = 70 -- A
+gap = 75 -- mm
 
 -- tempfile
 tempfile = "temp_"..tostring(gap).."mm.fem"
 
 -- set current range and increment and calculate step size
-increment = 1.0 -- A
-min_i = 0.0 -- A
-max_i = 200.0 -- A
+increment = 20 -- 10 -- 50 -- 20 -- 0.1
+min_i = 0
+max_i = 200 -- 140
 steps = floor((max_i - min_i) / increment) + 1
 
 -- file names
-dir = "/home/ckampa/coding/CalibMagnetCalc/FEMM/"
+dir = "/home/ckampa/Coding/CalibMagnetCalc/FEMM/"
 outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
 geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
 -- Materials to use
 mat_Env = "Air"
--- "Yoke and poles are 1006 Low Carbon Steel" - GMW
-mat_Yoke = "1006 Steel"
-mat_Pole = "1006 Steel"
+mat_Yoke = "416 stainless steel, annealed"
+mat_Pole = "1010 Steel"
 -- Custom materials to create
 mat_Coil = "GMW Copper" -- custom material
 
@@ -107,7 +106,7 @@ mi_makeABC(7, 1000, 0, 0, 0)
 mi_zoomnatural()
 -- create mesh
 mi_createmesh()
--- zoom in
+-- zoom in 
 mi_zoom(0, -500, 500, 500)
 
 -- analyze for default current
@@ -145,15 +144,15 @@ for i=0,steps-1 do
 	current = i*increment + min_i
 	-- adjust "Coil" circuit property 1 (current) to new value
 	mi_modifycircprop("Coil",1,current)
-
+	
 	-- analyze with new current and load analyzed solution
 	mi_analyze()
 	mi_loadsolution()
-
+	
 	-- collect Br, Bz values from postprocessor
 	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,0)
 	B = sqrt(Br^2 + Bz^2)
-	-- write B to file
+	-- write B to file	
 	handle=openfile(outfile,"a")
 	write(handle, current, ', ', B, '\n')
 	closefile(handle)

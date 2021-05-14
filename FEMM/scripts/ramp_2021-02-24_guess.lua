@@ -5,27 +5,27 @@
 
 -- Some globals to change by hand
 -- Magnet gap
-gap = 70 -- A
+gap = 75 -- A
 
 -- tempfile
 tempfile = "temp_"..tostring(gap).."mm.fem"
 
 -- set current range and increment and calculate step size
-increment = 1.0 -- A
-min_i = 0.0 -- A
-max_i = 200.0 -- A
+increment = 1 -- A
+-- min_i = 50. -- A
+min_i = 0. -- A
+max_i = 145. -- A
 steps = floor((max_i - min_i) / increment) + 1
 
 -- file names
 dir = "/home/ckampa/coding/CalibMagnetCalc/FEMM/"
-outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
+outfile = dir.."data/ramp_2021-02-24_guess_gap"..tostring(gap).."_B_vs_I_results.txt"
 geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
 -- Materials to use
 mat_Env = "Air"
--- "Yoke and poles are 1006 Low Carbon Steel" - GMW
-mat_Yoke = "1006 Steel"
-mat_Pole = "1006 Steel"
+mat_Yoke = "416 stainless steel, annealed"
+mat_Pole = "1010 Steel"
 -- Custom materials to create
 mat_Coil = "GMW Copper" -- custom material
 
@@ -107,7 +107,7 @@ mi_makeABC(7, 1000, 0, 0, 0)
 mi_zoomnatural()
 -- create mesh
 mi_createmesh()
--- zoom in
+-- zoom in 
 mi_zoom(0, -500, 500, 500)
 
 -- analyze for default current
@@ -136,7 +136,7 @@ write(handle, "Current step size: ", increment, " Amps\n")
 write(handle, "N_steps: ", steps, "\n")
 write(handle, "Data is comma delimited\n")
 write(handle, "Columns:\n")
-write(handle, "I [A], B [T]\n")
+write(handle, "Location, I [A], Br[T], Bz[T], B [T]\n")
 closefile(handle)
 
 -- loop through currents
@@ -145,16 +145,24 @@ for i=0,steps-1 do
 	current = i*increment + min_i
 	-- adjust "Coil" circuit property 1 (current) to new value
 	mi_modifycircprop("Coil",1,current)
-
+	
 	-- analyze with new current and load analyzed solution
 	mi_analyze()
 	mi_loadsolution()
-
+	
 	-- collect Br, Bz values from postprocessor
-	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,0)
+    -- NMR (near pole)
+	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(35.,gap/2-3.)
 	B = sqrt(Br^2 + Bz^2)
-	-- write B to file
+	-- write B to file	
 	handle=openfile(outfile,"a")
-	write(handle, current, ', ', B, '\n')
+	write(handle, 'NMR, ', current, ', ', Br, ', ', Bz, ', ', B, '\n')
+	closefile(handle)
+    -- Hall (near middle)
+	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(35.,2.5)
+	B = sqrt(Br^2 + Bz^2)
+	-- write B to file	
+	handle=openfile(outfile,"a")
+	write(handle, 'Hall, ', current, ', ', Br, ', ', Bz, ', ', B, '\n')
 	closefile(handle)
 end

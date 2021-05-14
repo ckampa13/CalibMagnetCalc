@@ -5,7 +5,7 @@
 
 -- Some globals to change by hand
 -- Magnet gap
-gap = 70 -- A
+gap = 75 -- A
 
 -- tempfile
 tempfile = "temp_"..tostring(gap).."mm.fem"
@@ -18,7 +18,8 @@ steps = floor((max_i - min_i) / increment) + 1
 
 -- file names
 dir = "/home/ckampa/coding/CalibMagnetCalc/FEMM/"
-outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
+-- outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
+outfile = dir.."data/gap75_1006_Steel_ramp_2021-02-24_ideal_B_vs_I_results.txt"
 geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
 -- Materials to use
@@ -151,10 +152,27 @@ for i=0,steps-1 do
 	mi_loadsolution()
 
 	-- collect Br, Bz values from postprocessor
-	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,0)
+	-- _, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,0)
+	-- B = sqrt(Br^2 + Bz^2)
+	-- -- write B to file
+	-- handle=openfile(outfile,"a")
+	-- write(handle, current, ', ', B, '\n')
+	-- closefile(handle)
+
+	-- collect Br, Bz values from postprocessor
+    -- NMR (near pole)
+	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,gap/2)
 	B = sqrt(Br^2 + Bz^2)
-	-- write B to file
+	-- write B to file	
 	handle=openfile(outfile,"a")
-	write(handle, current, ', ', B, '\n')
+	write(handle, 'NMR, ', current, ', ', Br, ', ', Bz, ', ', B, '\n')
 	closefile(handle)
+    -- Hall (near middle)
+	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0.,0.)
+	B = sqrt(Br^2 + Bz^2)
+	-- write B to file	
+	handle=openfile(outfile,"a")
+	write(handle, 'Hall, ', current, ', ', Br, ', ', Bz, ', ', B, '\n')
+	closefile(handle)
+
 end

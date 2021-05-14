@@ -23,8 +23,9 @@ geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
 -- Materials to use
 mat_Env = "Air"
-mat_Yoke = "416 stainless steel, annealed"
-mat_Pole = "1010 Steel"
+-- "Yoke and poles are 1006 Low Carbon Steel" - GMW
+mat_Yoke = "1006 Steel"
+mat_Pole = "1006 Steel"
 -- Custom materials to create
 mat_Coil = "GMW Copper" -- custom material
 
@@ -106,7 +107,7 @@ mi_makeABC(7, 1000, 0, 0, 0)
 mi_zoomnatural()
 -- create mesh
 mi_createmesh()
--- zoom in 
+-- zoom in
 mi_zoom(0, -500, 500, 500)
 
 -- analyze for default current
@@ -141,18 +142,18 @@ closefile(handle)
 -- loop through currents
 for i=0,steps-1 do
 	-- calculate current with equal increments
-	current = i*increment
+	current = i*increment + min_i
 	-- adjust "Coil" circuit property 1 (current) to new value
 	mi_modifycircprop("Coil",1,current)
-	
+
 	-- analyze with new current and load analyzed solution
 	mi_analyze()
 	mi_loadsolution()
-	
+
 	-- collect Br, Bz values from postprocessor
 	_, Br, Bz, _, _, _, _, _, _, _, _, _, _ = mo_getpointvalues(0,0)
 	B = sqrt(Br^2 + Bz^2)
-	-- write B to file	
+	-- write B to file
 	handle=openfile(outfile,"a")
 	write(handle, current, ', ', B, '\n')
 	closefile(handle)

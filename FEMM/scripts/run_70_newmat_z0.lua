@@ -18,7 +18,8 @@ steps = floor((max_i - min_i) / increment) + 1
 
 -- file names
 dir = "/home/ckampa/coding/CalibMagnetCalc/FEMM/"
-outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
+-- outfile = dir.."data/gap"..tostring(gap).."_B_vs_I_r0z0_results.txt"
+outfile = dir.."data/gap70_z0_1006_Steel_results.txt"
 geomfile = dir.."geom/GMW_"..tostring(gap).."mm.dxf"
 
 -- Materials to use
